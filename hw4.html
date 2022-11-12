@@ -10,18 +10,19 @@
     <script src="https://d3js.org/d3-geo-projection.v4.js"></script>
     <script src="https://d3js.org/topojson.v3.js"></script>
 
-    <script src="js/line-chart.js"></script>
+    <script src="js/charts.js"></script>
     <script src="js/map.js"></script>
     <script src="js/script.js"></script>
   </head>
 
   <body>
     <div class="header">
-      <h1>COVID-19 World Case Tracker</h1>
-      <p>Name: Santhosh E-Mail: s.natarajappa@utah.edu UID: u1363267</p>
+      <h1>VISUALIZING BIRD MIGRATION PATTERNS</h1>
     </div>
 
     <div id="content">
+      <div class="row chart">
+      <div id="map-div">
       <svg id="map">
         <g id="graticules"></g>
         <g id="countries"></g>
@@ -35,5 +36,37 @@
       </svg> -->
       <!-- <button id="clear-button">Clear Selected Countries</button> -->
     </div>
+    <div>
+      <svg id="wiki"></svg>
+    </div>
+    </div>
+  </div>
+    <div class="row chart">
+
+      <div class="chart">
+        <h2>Line Chart</h2>
+        <div id="Areachart-div">
+          <svg class="area-chart">
+          </svg>
+        </div>
+      </div>
+
+      <div class="chart">
+        <h2>Scatterplot</h2>
+        <div id="Scatterplot-div">
+          <svg class="scatter-plot">
+          </svg>
+        </div>
+      </div>
+
+      <div class="chart">
+        <h2>Some chart</h2>
+        <div id="somechart-div">
+          <svg class="some-plot">
+          </svg>
+        </div>
+      </div>
+    </div>>
+  </div>
   </body>
 </html>

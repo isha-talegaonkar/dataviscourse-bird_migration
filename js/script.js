@@ -1,7 +1,7 @@
 // ******* DATA LOADING *******
 // We took care of that for you
 async function loadData() {
-  const birdData = await d3.text("data/ebd_swahaw_202001_202012_relSep-2022/ebd_swahaw_202001_202012_relSep-2022.txt");
+  const birdData = await d3.csv("data/ebd_US_goleag_202001_202112_relSep-2022.csv");
   // const mapData = await d3.json("data/land-50m.json");
   return { birdData };
 }
@@ -20,21 +20,11 @@ const globalApplicationState = {
 
 //******* APPLICATION MOUNTING *******
 loadData().then((loadedData) => {
-  // console.log("Here is the imported data:", loadedData.covidData);
+  console.log("Here is the imported data:", loadedData.birdData);
 
   let birdData = loadedData.birdData
-  var cells = birdData.split('\n').map(function (el) { return el.split(/\t+/); });
-  var headings = cells.shift();
 
-  var obj = cells.map(function (el) {
-    var obj = {};
-    for (var i = 0, l = el.length; i < l; i++) {
-      obj[headings[i]] = isNaN(Number(el[i])) ? el[i] : +el[i];
-    }
-    return obj;
-  });
-
-  console.log(obj)
+  setup(birdData);
   // Store the loaded data into the globalApplicationState
   // globalApplicationState.covidData = loadedData.covidData;
   // globalApplicationState.mapData = loadedData.mapData;

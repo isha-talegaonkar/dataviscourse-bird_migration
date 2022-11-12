@@ -55,3 +55,19 @@
 .graticule.outline {
     stroke-width: 2px;
 }
+
+svg {
+    padding: 10px;
+    width: 550px;
+    height: 250px;
+  }
+
+.chart,
+h2 {
+text-align: center;
+}
+
+.row {
+display: flex;
+flex-wrap: wrap;
+}
