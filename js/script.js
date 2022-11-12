@@ -25,23 +25,5 @@ loadData().then((loadedData) => {
   let birdData = loadedData.birdData
 
   setup(birdData);
-  // Store the loaded data into the globalApplicationState
-  // globalApplicationState.covidData = loadedData.covidData;
-  // globalApplicationState.mapData = loadedData.mapData;
-  // globalApplicationState.usa = loadedData.usa;
 
-  // // Creates the view objects with the global state passed in
-  // const worldMap = new MapVis(globalApplicationState);
-  // const lineChart = new LineChart(globalApplicationState);
-
-  // globalApplicationState.worldMap = worldMap;
-  // globalApplicationState.lineChart = lineChart;
-
-  // //TODO add interactions for Clear Selected Countries button
-  // d3.select("#clear-button").on("click", () => {
-  //   d3.select("#overlay").selectAll("*").remove();
-  //   d3.select("#countries").selectAll("path").attr("class", "country");
-  //   globalApplicationState.selectedLocations = [];
-  //   lineChart.updateLineChart();
-  // });
 });
