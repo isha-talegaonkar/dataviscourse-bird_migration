@@ -39,7 +39,7 @@ function drawLineChart(data){
     .range([MARGIN.left, CHART_WIDTH - MARGIN.right])
   
     var yScale = d3.scaleLinear()
-    .domain([0, d3.max(data, function(d) { return parseInt(d['OBSERVATION COUNT']); })])
+    .domain([0, d3.max(data, function(d) { return parseInt(d['obsCount']); })])
     .range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0]).nice();
 
   const lineGenerator = d3.line().x(function(d,i) { 
@@ -47,7 +47,7 @@ function drawLineChart(data){
     const date = new Date(+year, month - 1, +day);  
     return xScale(date)
   })
-  .y(d => yScale(parseInt(d['OBSERVATION COUNT'])) + MARGIN.top)
+  .y(d => yScale(parseInt(d['obsCount'])) + MARGIN.top)
 
   let svg = d3.selectAll(".line-chart")
 
@@ -77,7 +77,7 @@ function drawScatterPlot(data){
     // https://github.com/d3/d3-scale
   let yScale = d3
     .scaleLinear()
-    .domain([0, d3.max(data, d => parseInt(d['OBSERVATION COUNT']))])
+    .domain([0, d3.max(data, d => parseInt(d['obsCount']))])
     .range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0])
     .nice();
 
@@ -98,7 +98,7 @@ function drawScatterPlot(data){
   svg.selectAll("circle")
   .data(data)
   .join("circle")
-  .attr("cx", function (d) { return xScale(d['COUNTY']); })
-  .attr("cy", function (d) { return yScale(parseInt(d['OBSERVATION COUNT'])) + MARGIN.top; })
+  .attr("cx", function (d) { return xScale(d['COUNTRY']); })
+  .attr("cy", function (d) { return yScale(parseInt(d['obsCount'])) + MARGIN.top; })
   .attr("r", 5)
 }
