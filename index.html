@@ -1,0 +1,114 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Bird Migration</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.25/esri/themes/dark/main.css"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v4.js"></script>
+    <script src="https://d3js.org/topojson.v3.js"></script>
+
+    <script src="https://js.arcgis.com/4.25/"></script>
+    <script src="js/script.js"></script>
+  </head>
+
+  <body>
+    <div class="header">
+      <ul>
+        <li><a class="active" href="#home">Home</a></li>
+        <li><a href="#report">Process Book</a></li>
+        <li><a href="#demo">Demo</a></li>
+        <li><a href="#github">GitHub</a></li>
+      </ul>
+      <h1>VISUALIZING BIRD MIGRATION PATTERNS</h1>
+    </div>
+    <div id="content">
+      <div class="toolbox">
+        <span>
+          <label>Species:</label>
+          <select id="dataset" class="sel sel--black-panther">
+            <option value="amgplo">American Golden Plover</option>
+            <option value="goleag">Golden Eagle</option>
+            <option value="rebwoo">Red Bloodied Woodpecker</option>
+            <option value="reshaw5">Red Shouldered Hawk</option>
+          </select>
+        </span>
+        <span>
+          <label>Year</label>
+          <select id="year">
+            <option value="2015">2015</option>
+            <option value="2016">2016</option>
+            <option value="2017">2017</option>
+            <option value="2018">2018</option>
+            <option value="2019">2019</option>
+            <option value="2020">2020</option>
+          </select>
+        </span>
+      </div>
+      <div id="wiki">
+        <div class="col-1-4 service">
+          <a href="#" title="title">
+            <div class="module" id="titleid">
+              <p>
+                <img style="-webkit-user-select: none" id="bird-image" />
+              </p>
+              <h2 id="title"></h2>
+              <p id="box-body"></p>
+              <p>
+                Conservation Status:
+                <img style="-webkit-user-select: none" id="cons-img" />
+              </p>
+            </div>
+          </a>
+          <div class="chart">
+            <h5 class="chartHeader">Line Chart</h5>
+            <div id="linechart-div1">
+              <svg class="line-chart1">
+              </svg>
+            </div>
+        </div>
+        </div>
+      </div>
+    </div>
+    <div id="viewDiv"></div>
+    <div id="timeSlider"></div>
+    <div id="infoDiv" class="esri-widget">
+      <div><b>Bird Migration</b></div>
+      <br />
+      <div id="statsDiv" class="esri-widget"></div>
+    </div>
+    <div class="row chart">
+      <div class="chart">
+        <h2>Bar Chart</h2>
+        <div id="Scatterplot-div">
+          <svg class="bar-chart2">
+          </svg>
+        </div>
+      </div>
+
+      <div class="chart">
+        <h2>Line chart</h2>
+        <div id="linechart-div">
+          <svg class="line-chart">
+          </svg>
+        </div>
+      </div>
+
+    </div>
+    <!-- <div class="row chart">
+      <div class="chart">
+        <h2>Bar Chart</h2>
+        <div id="barchart-div">
+          <svg class="bar-chart1">
+          </svg>
+        </div>
+      </div> -->
+  </body>
+</html>
