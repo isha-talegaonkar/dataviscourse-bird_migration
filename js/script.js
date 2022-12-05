@@ -24,7 +24,6 @@ require([
   let CHART_WIDTH = 700;
   let CHART_HEIGHT = 400;
   const MARGIN = { left: 50, bottom: 20, top: 20, right: 20 };
-  const ANIMATION_DURATION = 300;
 
   setup();
   function setup() {
@@ -101,6 +100,20 @@ require([
       res = topN(result, result.length);
     }
 
+    function compare( a, b ) {
+      if ( a.obsCount < b.obsCount ){
+        return -1;
+      }
+      if ( a.obsCount > b.obsCount ){
+        return 1;
+      }
+      return 0;
+    }
+
+    result.sort(compare)
+
+    d3.select("#barchart-text")
+    .text("Top regions in which the bird is found")
     // console.log(res)
     let xScale = d3
       .scaleBand()
@@ -143,7 +156,7 @@ require([
       .duration(1000)
       .attr("x", function (d, i) {
         // console.log(d['MONTH'])
-        return xScale(d["STATE"]) + 12;
+        return xScale(d["STATE"]) + 20;
       })
       .attr("y", function (d) {
         return yScale(d["obsCount"]) + MARGIN.top;
@@ -174,9 +187,11 @@ require([
   function drawLineChart(data, state) {
     // console.log(state)
 
+    let country;
     let filtered_data = [];
     for (let element of data) {
       if (element["STATE"] == state) {
+        country = element['COUNTRY']
         let date = new Date(element["OBSERVATION DATE"]);
         element["YEAR"] = date.getFullYear();
         filtered_data.push(element);
@@ -186,14 +201,16 @@ require([
     let result = [];
     filtered_data.reduce(function (res, value) {
       if (!res[value["YEAR"]]) {
-        res[value["YEAR"]] = { YEAR: value["YEAR"].toString(), obsCount: 0 };
+        res[value["YEAR"]] = { YEAR: value["YEAR"].toString(), obsCount: 0, country: "" };
         result.push(res[value["YEAR"]]);
       }
       res[value["YEAR"]].obsCount += value.obsCount;
+      res[value['YEAR']].country = value['COUNTRY']
       return res;
     }, {});
 
     console.log(result);
+
 
     // var xScale = d3.scaleBand().domain(result.map(d => d['YEAR'])).range([MARGIN.left, CHART_WIDTH - MARGIN.right]);
     // var yScale = d3.scaleLinear().domain([0, d3.max(result, function(d) { return d['obsCount']; })]).range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0]).nice();
@@ -221,6 +238,8 @@ require([
     // .datum(result)
     // .attr("d", lineGenerator)
 
+    d3.select('#piechart-text')
+    .text(`Distribution of bird sightings over the years in ${state}, ${country}`)
     var text = "";
 
     var thickness = 40;
@@ -271,15 +290,17 @@ require([
         g.append("text")
           .attr("class", "name-text")
           .text(function (d) {
-            console.log(d);
-            return `${d.data["YEAR"]}`;
+            // console.log(d);
+            return `Year: ${d.data["YEAR"]}`;
           })
           .attr("text-anchor", "middle")
           .attr("dy", "-1.2em");
 
         g.append("text")
           .attr("class", "value-text")
-          .text(`${d.data["obsCount"]}`)
+          .text(function (d){ 
+            console.log(d)
+            return `${d.data["obsCount"]} birds observed`})
           .attr("text-anchor", "middle")
           .attr("dy", ".6em");
       })
@@ -442,6 +463,18 @@ require([
       element["AVERAGE"] = element["DURATION"] / element["LENGTH"];
     });
 
+    function compare( a, b ) {
+      if ( a.YEAR < b.YEAR ){
+        return -1;
+      }
+      if ( a.YEAR > b.YEAR ){
+        return 1;
+      }
+      return 0;
+    }
+    // console.log(result)
+    result.sort(compare)
+
     var xScale = d3
       .scaleBand()
       .domain(result.map((d) => d["YEAR"]))
@@ -476,7 +509,9 @@ require([
       .x((d, i) => xScale(d["YEAR"]) + 15)
       .y((d) => yScale(d["AVERAGE"]) + MARGIN.top);
 
-    svg.select("#line1-path").datum(result).attr("d", lineGenerator);
+    svg.select("#line1-path")
+    .datum(result)
+    .attr("d", lineGenerator)
   }
 
   function updateBoxContents(data, dataFile) {
