@@ -541,12 +541,16 @@ require([
     let svg = d3.selectAll(".line-chart1");
 
     d3.selectAll("#line1-yaxis")
+      .transition()
+      .duration(3000)
       .style("stroke", "black")
       .style("stroke-width", "0.5")
       .call(d3.axisLeft(yScale))
       .attr("transform", `translate(${MARGIN.left}, ${MARGIN.top})`);
 
     d3.selectAll("#line1-xaxis")
+    .transition()
+    .duration(3000)
       .style("stroke", "black")
       .style("stroke-width", "0.5")
       .attr("transform", `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
