@@ -6,25 +6,17 @@ require([
   "esri/widgets/Expand",
   "esri/widgets/Legend",
 ], (Map, MapView, GeoJSONLayer, TimeSlider, Expand, Legend) => {
-  /*
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    Note to self
-
-    "coordinates": [-116.51433, 33.10683, 9.01] -> Longitude, Latitude, Count
-     "mag" -> count
-     place -> place
-     time -> UNIX timestamp in milliseconds
-     title -> title
-     depth -> count
-    url: "https://bsvensson.github.io/various-tests/geojson/usgs-earthquakes-06182019.geojson",
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    */
-
   //Chart Code
   let CHART_WIDTH = 700;
   let CHART_HEIGHT = 400;
   const MARGIN = { left: 50, bottom: 20, top: 20, right: 20 };
   const ANIMATION_DURATION = 300;
+  let mapInitialized = false;
+  let timeSlider;
+  let view;
+  let layerView;
+  let selectedYear;
+  let selectedSliderSpeed;
 
   setup();
   function setup() {
@@ -56,9 +48,13 @@ require([
       loadData();
     });
 
-    // d3.select("#year").on("change", function (event) {
-    //   loadData();
-    // });
+    d3.select("#year").on("change", function (event) {
+      loadData();
+    });
+
+    d3.select("#sliderSpeed").on("change", function (event) {
+      loadData();
+    });
   }
 
   function update(data, dataFile) {
@@ -101,6 +97,19 @@ require([
       res = topN(result, result.length);
     }
 
+    function compare(a, b) {
+      if (a.obsCount < b.obsCount) {
+        return -1;
+      }
+      if (a.obsCount > b.obsCount) {
+        return 1;
+      }
+      return 0;
+    }
+
+    result.sort(compare);
+
+    d3.select("#barchart-text").text("Top regions in which the bird is found");
     // console.log(res)
     let xScale = d3
       .scaleBand()
@@ -128,13 +137,6 @@ require([
       .attr("transform", `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
       .call(d3.axisBottom(xScale));
 
-    // svg.selectAll("circle")
-    // .data(res)
-    // .join("circle")
-    // .attr("cx", function (d) { return xScale(d['STATE']); })
-    // .attr("cy", function (d) { return yScale(parseInt(d['obsCount'])) + MARGIN.top; })
-    // .attr("r", 5)
-
     svg
       .selectAll("rect")
       .data(res)
@@ -143,7 +145,7 @@ require([
       .duration(1000)
       .attr("x", function (d, i) {
         // console.log(d['MONTH'])
-        return xScale(d["STATE"]) + 12;
+        return xScale(d["STATE"]) + 20;
       })
       .attr("y", function (d) {
         return yScale(d["obsCount"]) + MARGIN.top;
@@ -175,8 +177,10 @@ require([
     // console.log(state)
 
     let filtered_data = [];
+    let country;
     for (let element of data) {
       if (element["STATE"] == state) {
+        country = element["COUNTRY"];
         let date = new Date(element["OBSERVATION DATE"]);
         element["YEAR"] = date.getFullYear();
         filtered_data.push(element);
@@ -186,40 +190,19 @@ require([
     let result = [];
     filtered_data.reduce(function (res, value) {
       if (!res[value["YEAR"]]) {
-        res[value["YEAR"]] = { YEAR: value["YEAR"].toString(), obsCount: 0 };
+        res[value["YEAR"]] = {
+          YEAR: value["YEAR"].toString(),
+          obsCount: 0,
+          country: "",
+        };
         result.push(res[value["YEAR"]]);
       }
       res[value["YEAR"]].obsCount += value.obsCount;
+      res[value["YEAR"]].country = value["COUNTRY"];
       return res;
     }, {});
 
     console.log(result);
-
-    // var xScale = d3.scaleBand().domain(result.map(d => d['YEAR'])).range([MARGIN.left, CHART_WIDTH - MARGIN.right]);
-    // var yScale = d3.scaleLinear().domain([0, d3.max(result, function(d) { return d['obsCount']; })]).range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0]).nice();
-
-    // let svg = d3.selectAll(".line-chart")
-
-    // d3.selectAll('#line-yaxis')
-    // .style("stroke", "black")
-    // .style("stroke-width", "0.5")
-    // .call(d3.axisLeft(yScale))
-    // .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`);
-
-    // d3.selectAll('#line-xaxis')
-    // .style("stroke", "black")
-    // .style("stroke-width", "0.5")
-    // .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
-    // .call(d3.axisBottom(xScale))
-    // .tickValues()
-
-    // const lineGenerator = d3.line()
-    // .x((d,i) => (xScale(d['YEAR'])) + 12)
-    // .y(d => yScale(d['obsCount']) + MARGIN.top)
-
-    // svg.select("#line-path")
-    // .datum(result)
-    // .attr("d", lineGenerator)
 
     var text = "";
 
@@ -271,15 +254,18 @@ require([
         g.append("text")
           .attr("class", "name-text")
           .text(function (d) {
-            console.log(d);
-            return `${d.data["YEAR"]}`;
+            // console.log(d);
+            return `Year: ${d.data["YEAR"]}`;
           })
           .attr("text-anchor", "middle")
           .attr("dy", "-1.2em");
 
         g.append("text")
           .attr("class", "value-text")
-          .text(`${d.data["obsCount"]}`)
+          .text(function (d) {
+            console.log(d);
+            return `${d.data["obsCount"]} birds observed`;
+          })
           .attr("text-anchor", "middle")
           .attr("dy", ".6em");
       })
@@ -309,6 +295,10 @@ require([
       .attr("text-anchor", "middle")
       .attr("dy", ".35em")
       .text(text);
+
+    d3.select("#piechart-text").text(
+      `Distribution of bird sightings over the years in ${state}, ${country}`
+    );
   }
 
   function drawBarChart(data) {
@@ -442,6 +432,18 @@ require([
       element["AVERAGE"] = element["DURATION"] / element["LENGTH"];
     });
 
+    function compare(a, b) {
+      if (a.YEAR < b.YEAR) {
+        return -1;
+      }
+      if (a.YEAR > b.YEAR) {
+        return 1;
+      }
+      return 0;
+    }
+    // console.log(result)
+    result.sort(compare);
+
     var xScale = d3
       .scaleBand()
       .domain(result.map((d) => d["YEAR"]))
@@ -499,8 +501,12 @@ require([
   async function loadData() {
     let birdData;
     const dataFile = d3.select("#dataset").property("value");
-    // console.log(dataFile)
+    selectedYear = d3.select("#year").property("value");
+    selectedSliderSpeed = d3.select("#sliderSpeed").property("value");
+    console.log(dataFile);
     birdData = await d3.csv(`data/${dataFile}/filtered.csv`);
+
+    //Loading map related data
 
     for (let element of birdData) {
       let num = parseInt(element["OBSERVATION COUNT"]);
@@ -530,344 +536,346 @@ require([
         element["DURATION MINUTES"] = 0;
       }
     }
-
     update(birdData, dataFile);
+
+    if (mapInitialized) {
+      view.ui.remove(timeSlider);
+    }
+    let metaDataForMap = await d3.json(
+      `data/${dataFile}/${selectedYear}/metadata.json`
+    );
+    let mapDataForMap = await d3.json(
+      `data/${dataFile}/${selectedYear}/mapdata.json`
+    );
+    updateMapData(
+      metaDataForMap,
+      mapDataForMap,
+      selectedYear,
+      selectedSliderSpeed,
+      birdData
+    );
+    mapInitialized = true;
   }
 
   //Chart Code End
-
   //Map Code Start
-  let layerView;
-  const color = "yellow";
-  const year = 2021;
-  const countVisualVariable = {
-    type: "size",
-    field: "mag",
-    minDataValue: 1,
-    maxDataValue: 7000,
-    minSize: 5,
-    maxSize: 28.6,
-  };
+  function updateMapData(
+    metaDataForMap,
+    mapDataForMap,
+    selectedYear,
+    selectedSliderSpeed,
+    birdData
+  ) {
+    console.log(mapDataForMap);
+    console.log(metaDataForMap);
+    const color = "yellow";
+    const year = selectedYear;
+    const countVisualVariable = {
+      type: "size",
+      field: "mag",
+      minDataValue: metaDataForMap.minDataValue,
+      maxDataValue: metaDataForMap.maxDataValue,
+      minSize: 5,
+      maxSize: 28.6,
+    };
 
-  const depthVisualVariable = {
-    type: "color",
-    field: "depth",
-    stops: [
-      {
-        value: 2,
-        color: "#FF9573",
-        label: "Golden Eagle",
-      },
-      {
-        value: 1,
-        color: "#6CD4C5",
-        label: "American Felican",
-      },
-    ],
-  };
-
-  const customPopupTemplate = {
-    title: "{title}",
-    content: [
-      {
-        type: "fields",
-        fieldInfos: [
-          {
-            fieldName: "place",
-            label: "Location",
-            visible: true,
-          },
-          {
-            fieldName: "mag",
-            label: "Count",
-            visible: true,
-          },
-          {
-            fieldName: "duration",
-            label: "Duration In Minutes",
-            visible: true,
-          },
-        ],
-      },
-    ],
-  };
-
-  const featureReduction = {
-    type: "cluster",
-    clusterMinSize: 1,
-    clusterMaxSize: 28,
-    labelingInfo: [
-      {
-        deconflictionStrategy: "none",
-        labelExpressionInfo: {
-          expression: `$feature.cluster_mag;
-            var value = $feature.cluster_mag;
-            var num = Count(Text(Round(value)));
-            var label = When(
-              num < 4, Text(value, "#.#"),
-              num <= 6, Text(value / Pow(10, 3), "#.#k"),
-              num > 7, Text(value / Pow(10, 6), "#.#m"),
-              Text(value, "#,###")
-            );
-           return label;
-           `,
+    const depthVisualVariable = {
+      type: "color",
+      field: "depth",
+      stops: [
+        {
+          value: metaDataForMap.id,
+          color: "#FF9573",
+          label: metaDataForMap.name,
         },
-        labelPlacement: "center-center",
-        symbol: {
-          type: "text",
-          color: [240, 240, 240],
-          font: {
-            family: "Noto Sans",
-            size: 9,
-            weight: "bold",
-          },
-          haloColor: [55, 56, 55],
-          haloSize: 0.75,
+      ],
+    };
+
+    const customPopupTemplate = {
+      title: "{title}",
+      content: [
+        {
+          type: "fields",
+          fieldInfos: [
+            {
+              fieldName: "place",
+              label: "Location",
+              visible: true,
+            },
+            {
+              fieldName: "mag",
+              label: "Count",
+              visible: true,
+            },
+            {
+              fieldName: "duration",
+              label: "Duration In Minutes",
+              visible: true,
+            },
+          ],
         },
-      },
-    ],
-  };
-  const timeInfo = {
-    startField: "time", // name of the date field
-    interval: {
-      // set time interval to one day
-      unit: "days",
-      value: 1,
-    },
-  };
-  let customRenderer = {
-    type: "simple",
-    field: "mag",
-    symbol: {
-      type: "simple-marker",
-      color: color,
-      outline: null,
-    },
-    visualVariables: [countVisualVariable, depthVisualVariable],
-  };
+      ],
+    };
 
-  // customRenderer = {
-  //   type: "unique-value",
-  //   field: "depth",
-  //   uniqueValueInfos: [
-  //     {
-  //       value: 1,
-  //       label: "Golden Eagle",
-  //       symbol: {
-  //         type: "simple-marker",
-  //         color: color,
-  //         outline: null,
-  //       },
-  //     },
-  //   ],
-  //   featureReduction,
-  // };
-
-  // set the timeInfo on GeoJSONLayer at the time initialization
-  const layer = new GeoJSONLayer({
-    url: "../../data/current/mapdata.json",
-    title: "Bird Migration",
-    // set the CSVLayer's timeInfo based on the date field
-    timeInfo: timeInfo,
-    renderer: customRenderer,
-    popupTemplate: customPopupTemplate,
-  });
-
-  const map = new Map({
-    basemap: "gray-vector",
-    layers: [layer],
-  });
-
-  const view = new MapView({
-    map: map,
-    container: "viewDiv",
-    zoom: 2,
-    center: [-84.087502, 9.934739],
-  });
-
-  // create a new time slider widget
-  // set other properties when the layer view is loaded
-  // by default timeSlider.mode is "time-window" - shows
-  // data falls within time range
-  const timeSlider = new TimeSlider({
-    container: "timeSlider",
-    // playRate: 50,
-    playRate: 500,
-    stops: {
+    const timeInfo = {
+      startField: "time", // name of the date field
       interval: {
+        // set time interval to one day
+        unit: selectedSliderSpeed,
         value: 1,
-        unit: "days",
       },
-    },
-  });
-  view.ui.add(timeSlider, "bottom-left");
-
-  // wait till the layer view is loaded
-  view.whenLayerView(layer).then((lv) => {
-    layerView = lv;
-
-    // start time of the time slider - 5/25/2019
-    const start = new Date(year, 00, 01);
-    const endTime = new Date(year, 11, 31);
-    // set time slider's full extent to
-    // 5/25/5019 - until end date of layer's fullTimeExtent
-    timeSlider.fullTimeExtent = {
-      start: start,
-      // end: layer.timeInfo.fullTimeExtent.end,
-      end: endTime,
     };
 
-    // We will be showing earthquakes with one day interval
-    // when the app is loaded we will show earthquakes that
-    // happened between 5/25 - 5/26.
-    let end = new Date(start);
-    // end of current time extent for time slider
-    // showing earthquakes with one day interval
-    // end.setDate(end.getDate() + 1);
-    end.setDate(end.getDate() + 1);
-    // timeExtent property is set so that timeslider
-    // widget show the first day. We are setting
-    // the thumbs positions.
-    timeSlider.timeExtent = { start, end };
-  });
-
-  // watch for time slider timeExtent change
-  timeSlider.watch("timeExtent", () => {
-    // only show earthquakes happened up until the end of
-    // timeSlider's current time extent.
-    layer.definitionExpression =
-      "time <= " + timeSlider.timeExtent.end.getTime();
-
-    // now gray out earthquakes that happened before the time slider's current
-    // timeExtent... leaving footprint of earthquakes that already happened
-    layerView.featureEffect = {
-      filter: {
-        timeExtent: timeSlider.timeExtent,
-        geometry: view.extent,
-      },
-      excludedEffect: "grayscale(0%) opacity(0%)",
+    const placeInfo = {
+      startField: "place",
+      value: "{place}",
     };
 
-    // run statistics on earthquakes fall within the current time extent
-    const statQuery = layerView.featureEffect.filter.createQuery();
-    statQuery.outStatistics = [
-      magMax,
-      magAvg,
-      magMin,
-      tremorCount,
-      // avgDepth,
-    ];
+    let customRenderer = {
+      type: "simple",
+      field: "mag",
+      symbol: {
+        type: "simple-marker",
+        color: color,
+        outline: null,
+      },
+      visualVariables: [countVisualVariable, depthVisualVariable],
+    };
 
-    layer
-      .queryFeatures(statQuery)
-      .then((result) => {
-        let htmls = [];
-        statsDiv.innerHTML = "";
-        if (result.error) {
-          return result.error;
-        } else {
-          if (result.features.length >= 1) {
-            const attributes = result.features[0].attributes;
-            for (name in statsFields) {
-              if (attributes[name] && attributes[name] != null) {
-                let count = 0;
-                if (name === "Average_magnitude") {
-                  count = attributes[name].toFixed(2);
-                } else {
-                  count = attributes[name];
+    // create a new blob from geojson featurecollection
+    const blob = new Blob([JSON.stringify(mapDataForMap)], {
+      type: "application/json",
+    });
+
+    // URL reference to the blob
+    const url = URL.createObjectURL(blob);
+
+    // set the timeInfo on GeoJSONLayer at the time initialization
+    const layer = new GeoJSONLayer({
+      // url: "../../data/current/mapdata.json",
+      url,
+      title: "Bird Migration",
+      // set the CSVLayer's timeInfo based on the date field
+      timeInfo: timeInfo,
+      placeInfo: placeInfo,
+      renderer: customRenderer,
+      popupTemplate: customPopupTemplate,
+    });
+
+    const map = new Map({
+      basemap: "gray-vector",
+      layers: [layer],
+    });
+
+    view = new MapView({
+      map: map,
+      container: "viewDiv",
+      zoom: 2,
+      center: [-84.087502, 9.934739],
+    });
+
+    // create a new time slider widget
+    // set other properties when the layer view is loaded
+    // by default timeSlider.mode is "time-window" - shows
+    // data falls within time range
+    timeSlider = new TimeSlider({
+      container: "timeSlider",
+      // playRate: 50,
+      playRate: 500,
+      stops: {
+        interval: {
+          value: 1,
+          unit: selectedSliderSpeed,
+        },
+      },
+    });
+    view.ui.add(timeSlider, "bottom-left");
+
+    // wait till the layer view is loaded
+    view.whenLayerView(layer).then((lv) => {
+      layerView = lv;
+
+      // start time of the time slider - 5/25/2019
+      const start = new Date(year, 00, 01);
+      const endTime = new Date(year, 11, 31);
+      // set time slider's full extent to
+      // 5/25/5019 - until end date of layer's fullTimeExtent
+      timeSlider.fullTimeExtent = {
+        start: start,
+        // end: layer.timeInfo.fullTimeExtent.end,
+        end: endTime,
+      };
+
+      // We will be showing earthquakes with one day interval
+      // when the app is loaded we will show earthquakes that
+      // happened between 5/25 - 5/26.
+      let end = new Date(start);
+      // end of current time extent for time slider
+      // showing earthquakes with one day interval
+      // end.setDate(end.getDate() + 1);
+      let step = 1;
+      if (selectedSliderSpeed === "days") {
+        step = 1;
+      } else if (selectedSliderSpeed === "weeks") {
+        step = 7;
+      } else if (selectedSliderSpeed === "months") {
+        step = 15;
+      }
+      end.setDate(end.getDate() + step);
+      // timeExtent property is set so that timeslider
+      // widget show the first day. We are setting
+      // the thumbs positions.
+      timeSlider.timeExtent = { start, end };
+    });
+
+    // // watch for time slider timeExtent change
+    timeSlider.watch("timeExtent", () => {
+      // only show earthquakes happened up until the end of
+      // timeSlider's current time extent.
+      layer.definitionExpression =
+        "time <= " + timeSlider.timeExtent.end.getTime();
+
+      // now gray out earthquakes that happened before the time slider's current
+      // timeExtent... leaving footprint of earthquakes that already happened
+      layerView.featureEffect = {
+        filter: {
+          timeExtent: timeSlider.timeExtent,
+          geometry: view.extent,
+        },
+        excludedEffect: "grayscale(0%) opacity(0%)",
+      };
+
+      // run statistics on earthquakes fall within the current time extent
+      const statQuery = layerView.featureEffect.filter.createQuery();
+      statQuery.outStatistics = [
+        magMax,
+        magAvg,
+        magMin,
+        tremorCount,
+        // avgDepth,
+      ];
+
+      layer
+        .queryFeatures(statQuery)
+        .then((result) => {
+          let htmls = [];
+          statsDiv.innerHTML = "";
+          if (result.error) {
+            return result.error;
+          } else {
+            if (result.features.length >= 1) {
+              const attributes = result.features[0].attributes;
+              console.log(attributes);
+              for (name in statsFields) {
+                if (attributes[name] && attributes[name] != null) {
+                  let count = 0;
+                  if (name === "Average_magnitude") {
+                    count = attributes[name].toFixed(2);
+                  } else {
+                    count = attributes[name];
+                  }
+                  const html =
+                    "<br/>" +
+                    statsFields[name] +
+                    ": <b><span> " +
+                    // attributes[name].toFixed(2) +
+                    count +
+                    "</span></b>";
+                  htmls.push(html);
                 }
-                const html =
-                  "<br/>" +
-                  statsFields[name] +
-                  ": <b><span> " +
-                  // attributes[name].toFixed(2) +
-                  count +
-                  "</span></b>";
-                htmls.push(html);
+              }
+              const yearHtml =
+                "<span>" +
+                result.features[0].attributes["tremor_count"] +
+                "</span> bird counts were recorded between " +
+                timeSlider.timeExtent.start.toLocaleDateString() +
+                " - " +
+                timeSlider.timeExtent.end.toLocaleDateString() +
+                ".<br/>";
+
+              if (htmls[0] == undefined) {
+                statsDiv.innerHTML = yearHtml;
+              } else {
+                statsDiv.innerHTML = yearHtml + htmls[0] + htmls[1] + htmls[2];
+                // + htmls[3];
               }
             }
-            const yearHtml =
-              "<span>" +
-              result.features[0].attributes["tremor_count"] +
-              "</span> bird counts were recorded between " +
-              timeSlider.timeExtent.start.toLocaleDateString() +
-              " - " +
-              timeSlider.timeExtent.end.toLocaleDateString() +
-              ".<br/>";
-
-            if (htmls[0] == undefined) {
-              statsDiv.innerHTML = yearHtml;
-            } else {
-              statsDiv.innerHTML = yearHtml + htmls[0] + htmls[1] + htmls[2];
-              // + htmls[3];
-            }
           }
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    });
 
-  // const avgDepth = {
-  //   onStatisticField: "depth",
-  //   outStatisticFieldName: "Average_depth",
-  //   statisticType: "avg",
-  // };
+    const avgDepth = {
+      onStatisticField: "depth",
+      outStatisticFieldName: "Average_depth",
+      statisticType: "avg",
+    };
 
-  const magMax = {
-    onStatisticField: "mag",
-    outStatisticFieldName: "Max_magnitude",
-    statisticType: "max",
-  };
+    const magMax = {
+      onStatisticField: "mag",
+      outStatisticFieldName: "Max_magnitude",
+      statisticType: "max",
+    };
 
-  const magAvg = {
-    onStatisticField: "mag",
-    outStatisticFieldName: "Average_magnitude",
-    statisticType: "avg",
-  };
+    const magAvg = {
+      onStatisticField: "mag",
+      outStatisticFieldName: "Average_magnitude",
+      statisticType: "avg",
+    };
 
-  const magMin = {
-    onStatisticField: "mag",
-    outStatisticFieldName: "Min_magnitude",
-    statisticType: "min",
-  };
+    const magMin = {
+      onStatisticField: "mag",
+      outStatisticFieldName: "Min_magnitude",
+      statisticType: "min",
+    };
 
-  const tremorCount = {
-    onStatisticField: "mag",
-    outStatisticFieldName: "tremor_count",
-    statisticType: "count",
-  };
+    const tremorCount = {
+      onStatisticField: "mag",
+      outStatisticFieldName: "tremor_count",
+      statisticType: "count",
+    };
 
-  const statsFields = {
-    Max_magnitude: "Max Count",
-    Average_magnitude: "Average Count",
-    Min_magnitude: "Min Count",
-    // Average_depth: "Average Depth",
-  };
+    const statsFields = {
+      Max_magnitude: "Max Count",
+      Average_magnitude: "Average Count",
+      Min_magnitude: "Min Count",
+      // Average_depth: "Average Depth",
+    };
 
-  // add a legend for the earthquakes layer
-  const legendExpand = new Expand({
-    collapsedIconClass: "esri-icon-collapse",
-    expandIconClass: "esri-icon-expand",
-    expandTooltip: "Legend",
-    view: view,
-    content: new Legend({
+    // add a legend for the earthquakes layer
+    const legendExpand = new Expand({
+      collapsedIconClass: "esri-icon-collapse",
+      expandIconClass: "esri-icon-expand",
+      expandTooltip: "Legend",
       view: view,
-    }),
-    expanded: false,
-  });
-  view.ui.add(legendExpand, "top-left");
+      content: new Legend({
+        view: view,
+      }),
+      expanded: false,
+    });
+    view.ui.add(legendExpand, "top-left");
 
-  const statsDiv = document.getElementById("statsDiv");
-  const infoDiv = document.getElementById("infoDiv");
-  const infoDivExpand = new Expand({
-    collapsedIconClass: "esri-icon-collapse",
-    expandIconClass: "esri-icon-expand",
-    expandTooltip: "Expand Migration Info",
-    view: view,
-    content: infoDiv,
-    expanded: true,
-  });
-  view.ui.add(infoDivExpand, "top-right");
+    const statsDiv = document.getElementById("statsDiv");
+    const infoDiv = document.getElementById("infoDiv");
+    const infoDivExpand = new Expand({
+      collapsedIconClass: "esri-icon-collapse",
+      expandIconClass: "esri-icon-expand",
+      expandTooltip: "Expand Migration Info",
+      view: view,
+      content: infoDiv,
+      expanded: true,
+    });
+    view.ui.add(infoDivExpand, "top-right");
+
+    view.on("click", function (event) {
+      view.hitTest(event).then(function (response) {
+        // do something with the result graphic
+        console.log("Click is working");
+        console.log(response.results[0].graphic);
+        var graphic = response.results[0].graphic;
+      });
+    });
+  }
 });

@@ -148,11 +148,11 @@ a:hover {
     background: none repeat scroll 0% 0% rgb(160, 160, 160);
 }
 
-.bar-chart rect {
-    fill: rgb(79, 175, 211);
+.bar-chart2 rect {
+    fill: #2b82bb;
 }
 
-.bar-chart .hovered {
+.bar-chart2 .hovered {
     fill: #979696;
 }
 
