@@ -235,7 +235,7 @@ require([
       return res;
     }, {});
 
-    console.log(result);
+    // console.log(result);
 
     function compare(a, b) {
       if (a.obsCount < b.obsCount) {
@@ -342,7 +342,7 @@ require([
         g.append("text")
           .attr("class", "value-text")
           .text(function (d) {
-            console.log(d);
+            // console.log(d);
             return `${d.data["obsCount"]} birds observed`;
           })
           .attr("text-anchor", "middle")
@@ -684,7 +684,7 @@ require([
       )
       .style("text-align", "center");
 
-    console.log(data);
+    // console.log(data);
   }
 
   async function loadData() {
@@ -692,7 +692,7 @@ require([
     const dataFile = d3.select("#dataset").property("value");
     selectedYear = d3.select("#year").property("value");
     selectedSliderSpeed = d3.select("#sliderSpeed").property("value");
-    console.log(dataFile);
+    // console.log(dataFile);
     birdData = await d3.csv(`data/${dataFile}/filtered.csv`);
 
     //Loading map related data
@@ -755,8 +755,8 @@ require([
     selectedSliderSpeed,
     birdData
   ) {
-    console.log(mapDataForMap);
-    console.log(metaDataForMap);
+    // console.log(mapDataForMap);
+    // console.log(metaDataForMap);
     const color = "yellow";
     const year = selectedYear;
     const countVisualVariable = {
@@ -954,7 +954,7 @@ require([
           } else {
             if (result.features.length >= 1) {
               const attributes = result.features[0].attributes;
-              console.log(attributes);
+              // console.log(attributes);
               for (name in statsFields) {
                 if (attributes[name] && attributes[name] != null) {
                   let count = 0;
