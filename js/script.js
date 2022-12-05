@@ -63,6 +63,7 @@ require([
     drawScatterPlot(data);
     updateBoxContents(data, dataFile);
     drawLineFromMap(data, "California");
+    populateInfoCards(data)
   }
 
   function drawScatterPlot(data) {
@@ -97,7 +98,7 @@ require([
       res = topN(result, result.length);
     }
 
-    d3.select("#barchart-text").text("Top regions in which the bird is found");
+    d3.select("#barchart-text").html("Top regions in which the bird is found");
 
     function compare(a, b) {
       if (a.obsCount < b.obsCount) {
@@ -277,6 +278,12 @@ require([
     d3.select("#piechart-text").text(
       `Distribution of bird sightings over the years in ${state}, ${country}`
     );
+
+    d3.select("#piechart-text1").text(
+      `Hover over chart to see values and what they represent`
+    );
+
+
     var text = "";
 
     var thickness = 40;
@@ -538,6 +545,8 @@ require([
       .range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0])
       .nice();
 
+    d3.select("#linechart-text")
+    .text(`Change in wait time in ${state} over the years`)
     let svg = d3.selectAll(".line-chart1");
 
     d3.selectAll("#line1-yaxis")
@@ -581,6 +590,88 @@ require([
       return `data/${dataFile}/threatened.png`;
     });
   }
+
+  function populateInfoCards(data){
+    const sum = data.reduce((accumulator, object) => {
+      return accumulator + object['obsCount'];
+    }, 0);
+
+    d3.select("#info-card1")
+    .html(`<h4><i>Taxonomic id: ${data[0]['TAXON CONCEPT ID']}</i></h4>`)
+    .style("text-align", "center")
+
+    const uniqueItems = (list, keyFn) => list.reduce((resultSet, item) =>
+    resultSet.add(typeof keyFn === 'string' ? item[keyFn] : keyFn(item)),
+    new Set).size;
+
+    num_countries = uniqueItems(data, 'COUNTRY');
+
+    d3.select("#info-card2")
+    .html(`<h4><i>${sum} observations</i></h4>`)
+    .style("text-align", "center")
+
+    let fall =[]
+    let spring = []
+    for(let element of data)
+    {
+      if(element['MONTH'] == "Sep" || element['MONTH'] == "Oct" || element['MONTH'] == "Nov"){
+        fall.push(element)
+      }
+      if(element['MONTH'] == "Apr" || element['MONTH'] == "May"){
+        spring.push(element)
+      }
+    }
+
+    let result_fall = []
+    fall.reduce(function (res, value) {
+      // console.log(value['DURATION MINUTES'])
+      if (!res[value["STATE"]]) {
+        res[value["STATE"]] = { STATE: value["STATE"], FREQUENCY: 0 , COUNTRY: value['COUNTRY']};
+        result_fall.push(res[value["STATE"]]);
+      }
+      res[value["STATE"]].FREQUENCY += 1;
+      return res;
+    }, {});
+
+    var max1 = result_fall.reduce(function(prev, current) {
+      if (+current.FREQUENCY > +prev.FREQUENCY) {
+          return current;
+      } else {
+          return prev;
+      }
+    });
+
+    let result_spring = []
+    spring.reduce(function (res, value) {
+      // console.log(value['DURATION MINUTES'])
+      if (!res[value["STATE"]]) {
+        res[value["STATE"]] = { STATE: value["STATE"], FREQUENCY: 0 , COUNTRY: value['COUNTRY']};
+        result_spring.push(res[value["STATE"]]);
+      }
+      res[value["STATE"]].FREQUENCY += 1;
+      return res;
+    }, {});
+
+    var max2 = result_spring.reduce(function(prev, current) {
+      if (+current.FREQUENCY > +prev.FREQUENCY) {
+          return current;
+      } else {
+          return prev;
+      }
+    });
+
+    d3.select("#info-card3")
+    .html(`<h4><i>Found in ${num_countries} countries</i></h4>`)
+    .style("text-align", "center")
+
+    d3.select("#info-card4")
+    .html(`<h4><i>Found most in ${max1.STATE}, ${max1.COUNTRY} in Fall <br> and  ${max2.STATE}, ${max2.COUNTRY} in Spring</i></h4> <br>`)
+    .style("text-align", "center")
+
+    console.log(data)
+
+  }
+
   async function loadData() {
     let birdData;
     const dataFile = d3.select("#dataset").property("value");
