@@ -1,26 +1,25 @@
-Links:
-Website:
-Process Book:
+# VISUALIZING BIRD MIGRATION PATTERNS
 
-How to run this project:
-1.Download the oroject from github
+## Links:
+### Website:
+### Process Book:
+
+## How to run this project:
+1.Download the project from github
 2.Go to the project directory
-3.run the comand -> python3 -m http.server 8000
-4.it opens index.html by default were we can view the project.
+3.Run the comand -> python3 -m http.server 8000
+4.It opens index.html by default were we can view the project.
 
-Code organization:
-1 index.html file
+## Code organization:
 
-css folder has 1 styles.css file for all styling purposes
+1. index.html file which is the main file
+2. css folder styles.css file for all styling purposes
+3. js folder contains script.js that has the code for creating all the visualizations. 
 
-1 .js file is used called script.js that has the code for creating the
-
-1 map
-2.graphs visualization 3. selecting bird species and time period 4. selecting location on map
-
-Data:
+## Data:
 The data was taken from https://science.ebird.org/en/use-ebird-data/download-ebird-data-products
 The data folder has 4 files for 4 bird species and 1 file for metadata.json mapdata.json
+
 The bird folders contain:
 
 1. Images of the bird and conservation status
