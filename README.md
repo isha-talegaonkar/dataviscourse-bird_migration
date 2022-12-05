@@ -3,6 +3,7 @@
 ## Links
 
 ### Website: https://isha-talegaonkar.github.io/dataviscourse-bird_migration/
+
 ### Process Book:
 
 ## How to run this project
@@ -16,12 +17,16 @@
 
 1. index.html file which is the main file
 2. css folder styles.css file for all styling purposes
-3. js folder contains script.js that has the code for creating all the visualizations. 
+3. js folder contains script.js that has the code for creating all the visualizations.
 
 ## Data
 
 The data was taken from https://science.ebird.org/en/use-ebird-data/download-ebird-data-products
 The data folder has 4 files for 4 bird species and 1 file for metadata.json mapdata.json
+
+Whole dataset can be found in https://drive.google.com/drive/folders/1o5cAQaXMaBYKIAnEq6Vxp2B91M5_i0wW
+
+PS: We had to remove the data before uploading to github due to storage constraint
 
 ## The bird folders contain
 
