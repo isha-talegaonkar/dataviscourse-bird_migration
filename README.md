@@ -2,9 +2,9 @@
 
 ## Links
 
-### Website: https://isha-talegaonkar.github.io/dataviscourse-bird_migration/
+#### Website: https://isha-talegaonkar.github.io/dataviscourse-bird_migration/
 
-### Process Book: https://docs.google.com/document/d/1DofONKr_HHTSAdtSqj9tST3eYguAdC3qeP2wWqFuRoU/edit
+#### Process Book: https://docs.google.com/document/d/1DofONKr_HHTSAdtSqj9tST3eYguAdC3qeP2wWqFuRoU/edit
 
 ## How to run this project
 
