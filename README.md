@@ -23,7 +23,7 @@
 The data was taken from https://science.ebird.org/en/use-ebird-data/download-ebird-data-products
 The data folder has 4 files for 4 bird species and 1 file for metadata.json mapdata.json
 
-##The bird folders contain
+## The bird folders contain
 
 1. Images of the bird and conservation status
 2. csv file containing the filtered dataset of the bird
