@@ -8,10 +8,10 @@
 
 ## How to run this project
 
-1.Download the project from github
-2.Go to the project directory
-3.Run the comand -> python3 -m http.server 8000
-4.It opens index.html by default were we can view the project.
+* Download the project from github
+* Go to the project directory
+* Run the comand -> python3 -m http.server 8000
+* It opens index.html by default were we can view the project.
 
 ## Code organization
 
