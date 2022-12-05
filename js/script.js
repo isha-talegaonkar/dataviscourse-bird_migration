@@ -97,6 +97,10 @@ require([
       res = topN(result, result.length);
     }
 
+
+    d3.select("#barchart-text")
+    .text("Top regions in which the bird is found")
+
     function compare(a, b) {
       if (a.obsCount < b.obsCount) {
         return -1;
@@ -110,6 +114,7 @@ require([
     result.sort(compare);
 
     d3.select("#barchart-text").text("Top regions in which the bird is found");
+
     // console.log(res)
     let xScale = d3
       .scaleBand()
@@ -137,6 +142,27 @@ require([
       .attr("transform", `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
       .call(d3.axisBottom(xScale));
 
+
+    // svg.selectAll("circle")
+    // .data(res)
+    // .join("circle")
+    // .attr("cx", function (d) { return xScale(d['STATE']); })
+    // .attr("cy", function (d) { return yScale(parseInt(d['obsCount'])) + MARGIN.top; })
+    // .attr("r", 5)
+
+    let tooltip = d3
+    .select('body')
+    .append('div')
+    .attr('class', 'd3-tooltip')
+    .style('position', 'absolute')
+    .style('z-index', '10')
+    .style('visibility', 'hidden')
+    .style('padding', '10px')
+    .style('background', 'rgba(0,0,0,0.6)')
+    .style('border-radius', '4px')
+    .style('color', '#fff')
+    .text('a simple tooltip');
+
     svg
       .selectAll("rect")
       .data(res)
@@ -160,13 +186,24 @@ require([
 
     svg
       .selectAll("rect")
-      .on("mouseover", function (event) {
+      .on("mouseover", function (event, d) {
         //console.log(event.currentTarget)
+        tooltip
+        .html(
+          `<div>Observation Count: ${d.obsCount}</div>`
+        )
+        .style('visibility', 'visible');
         d3.select(event.currentTarget).classed("hovered", true);
       })
       .on("mouseout", function (event) {
+        tooltip.html(``).style('visibility', 'hidden');
         d3.select(event.currentTarget).classed("hovered", false);
       })
+      .on('mousemove', function (event) {
+        tooltip
+          .style('top', event.pageY - 10 + 'px')
+          .style('left', event.pageX + 10 + 'px');
+    })
       .on("click", function (event, d) {
         // console.log(d['STATE'])
         drawLineChart(data, d["STATE"]);
@@ -176,11 +213,12 @@ require([
   function drawLineChart(data, state) {
     // console.log(state)
 
+    let country;
     let filtered_data = [];
     let country;
     for (let element of data) {
       if (element["STATE"] == state) {
-        country = element["COUNTRY"];
+        country = element['COUNTRY']
         let date = new Date(element["OBSERVATION DATE"]);
         element["YEAR"] = date.getFullYear();
         filtered_data.push(element);
@@ -190,20 +228,56 @@ require([
     let result = [];
     filtered_data.reduce(function (res, value) {
       if (!res[value["YEAR"]]) {
-        res[value["YEAR"]] = {
-          YEAR: value["YEAR"].toString(),
-          obsCount: 0,
-          country: "",
-        };
+        res[value["YEAR"]] = { YEAR: value["YEAR"].toString(), obsCount: 0, country: "" };
         result.push(res[value["YEAR"]]);
       }
       res[value["YEAR"]].obsCount += value.obsCount;
-      res[value["YEAR"]].country = value["COUNTRY"];
+      res[value['YEAR']].country = value['COUNTRY']
       return res;
     }, {});
 
     console.log(result);
 
+    function compare( a, b ) {
+      if ( a.obsCount < b.obsCount ){
+        return -1;
+      }
+      if ( a.obsCount > b.obsCount ){
+        return 1;
+      }
+      return 0;
+    }
+
+    result.sort(compare)
+
+    // var xScale = d3.scaleBand().domain(result.map(d => d['YEAR'])).range([MARGIN.left, CHART_WIDTH - MARGIN.right]);
+    // var yScale = d3.scaleLinear().domain([0, d3.max(result, function(d) { return d['obsCount']; })]).range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0]).nice();
+
+    // let svg = d3.selectAll(".line-chart")
+
+    // d3.selectAll('#line-yaxis')
+    // .style("stroke", "black")
+    // .style("stroke-width", "0.5")
+    // .call(d3.axisLeft(yScale))
+    // .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`);
+
+    // d3.selectAll('#line-xaxis')
+    // .style("stroke", "black")
+    // .style("stroke-width", "0.5")
+    // .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
+    // .call(d3.axisBottom(xScale))
+    // .tickValues()
+
+    // const lineGenerator = d3.line()
+    // .x((d,i) => (xScale(d['YEAR'])) + 12)
+    // .y(d => yScale(d['obsCount']) + MARGIN.top)
+
+    // svg.select("#line-path")
+    // .datum(result)
+    // .attr("d", lineGenerator)
+
+    d3.select('#piechart-text')
+    .text(`Distribution of bird sightings over the years in ${state}, ${country}`)
     var text = "";
 
     var thickness = 40;
@@ -262,10 +336,9 @@ require([
 
         g.append("text")
           .attr("class", "value-text")
-          .text(function (d) {
-            console.log(d);
-            return `${d.data["obsCount"]} birds observed`;
-          })
+          .text(function (d){ 
+            console.log(d)
+            return `${d.data["obsCount"]} birds observed`})
           .attr("text-anchor", "middle")
           .attr("dy", ".6em");
       })
@@ -437,18 +510,18 @@ require([
     result.forEach((element) => {
       element["AVERAGE"] = element["DURATION"] / element["LENGTH"];
     });
-
-    function compare(a, b) {
-      if (a.YEAR < b.YEAR) {
+    
+    function compare( a, b ) {
+      if ( a.YEAR < b.YEAR ){
         return -1;
       }
-      if (a.YEAR > b.YEAR) {
+      if ( a.YEAR > b.YEAR ){
         return 1;
       }
       return 0;
     }
     // console.log(result)
-    result.sort(compare);
+    result.sort(compare)
 
     var xScale = d3
       .scaleBand()
@@ -484,7 +557,9 @@ require([
       .x((d, i) => xScale(d["YEAR"]) + 15)
       .y((d) => yScale(d["AVERAGE"]) + MARGIN.top);
 
-    svg.select("#line1-path").datum(result).attr("d", lineGenerator);
+    svg.select("#line1-path")
+    .datum(result)
+    .attr("d", lineGenerator)
   }
 
   function updateBoxContents(data, dataFile) {
