@@ -242,3 +242,15 @@ li a:hover {
     font-size: 12pt;
     font-weight: bolder;
 }
+
+.info-box {
+    margin:5px;
+    border:1px solid #cfcfcf;
+    border-style: solid;
+    float: left;
+    width: 22%;
+    height: 65px;
+    padding: 2px;
+    color: #333;
+    justify-content:center;
+  }
