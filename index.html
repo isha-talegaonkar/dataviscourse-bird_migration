@@ -1,18 +1,23 @@
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Bird Migration</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.25/esri/themes/dark/main.css"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v4.js"></script>
+    <script src="https://d3js.org/topojson.v3.js"></script>
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>Bird Migration</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/dark/main.css" />
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://d3js.org/d3-geo-projection.v4.js"></script>
-  <script src="https://d3js.org/topojson.v3.js"></script>
-
-  <script src="https://js.arcgis.com/4.25/"></script>
-  <script src="js/script.js"></script>
-</head>
+    <script src="https://js.arcgis.com/4.25/"></script>
+    <script src="js/script.js"></script>
+  </head>
 
   <body>
     <div class="header">
@@ -59,88 +64,88 @@
             <!-- <option value="2017">2017</option>
             <option value="2018">2018</option>
             <option value="2019">2019</option> -->
-          <!-- <option value="2020">2020</option> -->
-        </select>
-      </span>
-      <span>
-        <label>Time Slider Speed</label>
-        <select id="sliderSpeed">
-          <option value="days">days</option>
-          <option value="weeks">weeks</option>
-          <option value="months">months</option>
-        </select>
-      </span>
-    </div>
+            <!-- <option value="2020">2020</option> -->
+          </select>
+        </span>
+        <span>
+          <label>Time Slider Speed</label>
+          <select id="sliderSpeed">
+            <option value="weeks">weeks</option>
+            <option value="days">days</option>
+            <option value="months">months</option>
+          </select>
+        </span>
+      </div>
 
-    <div id="info-cards">
-      <div id="info-card1" , class="info-box">
+      <div id="info-cards">
+        <div id="info-card1" , class="info-box"></div>
+        <div id="info-card2" , class="info-box"></div>
+        <div id="info-card3" , class="info-box"></div>
+        <div id="info-card4" , class="info-box"></div>
       </div>
-      <div id="info-card2" , class="info-box">
-      </div>
-      <div id="info-card3" , class="info-box">
-      </div>
-      <div id="info-card4" , class="info-box">
-      </div>
-    </div>
 
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <div id="wiki">
-      <div class="col-1-4 service">
-        <a href="#" title="title">
-          <div class="module" id="titleid">
-            <p>
-              <img style="-webkit-user-select: none" id="bird-image" />
-            </p>
-            <h2 id="title"></h2>
-            <p id="box-body"></p>
-            <p>
-              Conservation Status:
-              <img style="-webkit-user-select: none" id="cons-img" />
-            </p>
-          </div>
-        </a>
-        <div class="chart">
-          <!-- <h5 class="chartHeader">Line Chart</h5> -->
-          <div id="linechart-div1">
-            <h5 id="linechart-text"></h5> 
-            <svg class="line-chart1"></svg>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <div id="wiki">
+        <div class="col-1-4 service">
+          <a href="#" title="title">
+            <div class="module" id="titleid">
+              <p>
+                <img style="-webkit-user-select: none" id="bird-image" />
+              </p>
+              <h2 id="title"></h2>
+              <p id="box-body"></p>
+              <p>
+                Conservation Status:
+                <img style="-webkit-user-select: none" id="cons-img" />
+              </p>
+            </div>
+          </a>
+          <div class="chart">
+            <!-- <h5 class="chartHeader">Line Chart</h5> -->
+            <div id="linechart-div1">
+              <h5 id="linechart-text"></h5>
+              <svg class="line-chart1"></svg>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div id="viewDiv"></div>
-  <div id="timeSlider"></div>
-  <div id="infoDiv" class="esri-widget">
-    <div><b>Bird Migration</b></div>
+    <div id="viewDiv"></div>
+    <div id="timeSlider"></div>
+    <div id="infoDiv" class="esri-widget">
+      <div><b>Bird Migration</b></div>
+      <br />
+      <div id="statsDiv" class="esri-widget"></div>
+    </div>
+    <br /><br />
+    <br /><br />
+    <br /><br />
     <br />
-    <div id="statsDiv" class="esri-widget"></div>
-  </div>
-  <br><br> <br><br> <br><br> <br>
-  <div class="row chart">
-    <div class="chart">
-      <div id="Scatterplot-div">
-        <h4 id="barchart-text"></h4>
-        <h5>Hover over chart to see values, and click on the bars to drill down into yearly records</h5>
-        <svg class="bar-chart2">
-        </svg>
+    <div class="row chart">
+      <div class="chart">
+        <div id="Scatterplot-div">
+          <h4 id="barchart-text"></h4>
+          <h5>
+            Hover over chart to see values, and click on the bars to drill down
+            into yearly records
+          </h5>
+          <svg class="bar-chart2"></svg>
+        </div>
       </div>
-    </div>
 
-    <div class="chart">
-      <div id="linechart-div">
-        <h4 id="piechart-text"></h4>
-        <h5 id="piechart-text1"></h5>
-        <svg class="line-chart">
-        </svg>
+      <div class="chart">
+        <div id="linechart-div">
+          <h4 id="piechart-text"></h4>
+          <h5 id="piechart-text1"></h5>
+          <svg class="line-chart"></svg>
+        </div>
       </div>
     </div>
-  </div>
-  <!-- <div class="row chart">
+    <!-- <div class="row chart">
       <div class="chart">
         <h2>Bar Chart</h2>
         <div id="barchart-div">
@@ -148,6 +153,5 @@
           </svg>
         </div>
       </div> -->
-</body>
-
+  </body>
 </html>
