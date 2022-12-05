@@ -402,15 +402,21 @@ require([
       });
   }
 
-  function drawLineFromMap(data, state) {
+  function drawLineFromMap(data, state, country = "United States", month = 0) {
     let CHART_WIDTH = 300;
     let CHART_HEIGHT = 250;
     // console.log(data)
-    state = "Utah";
+    // state = "Utah";
 
     let filtered_data = [];
     for (let element of data) {
-      if (element["STATE"] == state) {
+      let date1 = new Date(element["OBSERVATION DATE"]);
+      let mon = date1.getMonth();
+      if (
+        element["STATE"] == state
+        // && element["COUNTRY"] == country
+        // && mon == month
+      ) {
         let date = new Date(element["OBSERVATION DATE"]);
         element["YEAR"] = date.getFullYear();
         filtered_data.push(element);
@@ -871,10 +877,10 @@ require([
 
     view.on("click", function (event) {
       view.hitTest(event).then(function (response) {
-        // do something with the result graphic
-        console.log("Click is working");
-        console.log(response.results[0].graphic);
-        var graphic = response.results[0].graphic;
+        const values = document
+          .querySelector(".esri-feature-fields__field-data")
+          .innerHTML.split(",");
+        drawLineFromMap(birdData, values[0], values[1]);
       });
     });
   }
