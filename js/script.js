@@ -100,18 +100,6 @@ require([
       res = topN(result, result.length);
     }
 
-    function compare( a, b ) {
-      if ( a.obsCount < b.obsCount ){
-        return -1;
-      }
-      if ( a.obsCount > b.obsCount ){
-        return 1;
-      }
-      return 0;
-    }
-
-    result.sort(compare)
-
     d3.select("#barchart-text")
     .text("Top regions in which the bird is found")
     // console.log(res)
@@ -148,6 +136,19 @@ require([
     // .attr("cy", function (d) { return yScale(parseInt(d['obsCount'])) + MARGIN.top; })
     // .attr("r", 5)
 
+    let tooltip = d3
+    .select('body')
+    .append('div')
+    .attr('class', 'd3-tooltip')
+    .style('position', 'absolute')
+    .style('z-index', '10')
+    .style('visibility', 'hidden')
+    .style('padding', '10px')
+    .style('background', 'rgba(0,0,0,0.6)')
+    .style('border-radius', '4px')
+    .style('color', '#fff')
+    .text('a simple tooltip');
+
     svg
       .selectAll("rect")
       .data(res)
@@ -171,13 +172,24 @@ require([
 
     svg
       .selectAll("rect")
-      .on("mouseover", function (event) {
+      .on("mouseover", function (event, d) {
         //console.log(event.currentTarget)
+        tooltip
+        .html(
+          `<div>Observation Count: ${d.obsCount}</div>`
+        )
+        .style('visibility', 'visible');
         d3.select(event.currentTarget).classed("hovered", true);
       })
       .on("mouseout", function (event) {
+        tooltip.html(``).style('visibility', 'hidden');
         d3.select(event.currentTarget).classed("hovered", false);
       })
+      .on('mousemove', function (event) {
+        tooltip
+          .style('top', event.pageY - 10 + 'px')
+          .style('left', event.pageX + 10 + 'px');
+    })
       .on("click", function (event, d) {
         // console.log(d['STATE'])
         drawLineChart(data, d["STATE"]);
@@ -211,6 +223,17 @@ require([
 
     console.log(result);
 
+    function compare( a, b ) {
+      if ( a.obsCount < b.obsCount ){
+        return -1;
+      }
+      if ( a.obsCount > b.obsCount ){
+        return 1;
+      }
+      return 0;
+    }
+
+    result.sort(compare)
 
     // var xScale = d3.scaleBand().domain(result.map(d => d['YEAR'])).range([MARGIN.left, CHART_WIDTH - MARGIN.right]);
     // var yScale = d3.scaleLinear().domain([0, d3.max(result, function(d) { return d['obsCount']; })]).range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0]).nice();
